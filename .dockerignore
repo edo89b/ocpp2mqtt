@@ -1,0 +1,9 @@
+.git
+.gitignore
+.env
+.env.example
+__pycache__/
+*.py[cod]
+*.md
+LICENSE
+docker-compose.yml

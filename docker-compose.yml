@@ -1,0 +1,25 @@
+services:
+  ocpp2mqtt:
+    build: .
+    container_name: ocpp2mqtt
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      MQTT_HOST: "${MQTT_HOST}"
+      MQTT_PORT: "${MQTT_PORT}"
+      MQTT_USER: "${MQTT_USER}"
+      MQTT_PASS: "${MQTT_PASS}"
+      MQTT_PREFIX: "${MQTT_PREFIX}"
+      OCPP_PORT: "${OCPP_PORT}"
+    networks:
+      macvlan01_dom_est:
+        ipv4_address: "${OCPP_IPV4}"
+        ipv6_address: "${OCPP_IPV6}"
+
+networks:                 
+  macvlan01_dom_est:
+    external: true
