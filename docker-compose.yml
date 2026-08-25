@@ -19,7 +19,13 @@ services:
       macvlan01_dom_est:
         ipv4_address: "${OCPP_IPV4}"
         ipv6_address: "${OCPP_IPV6}"
+      # Rete interna del broker: mosquitto si raggiunge via bridge, non via macvlan.
+      # Essendo multi-homed va usato l'alias `mqtt-int`, che risolve SOLO 172.21.0.2
+      # (vedi /opt/docker/mqtt/docker-compose.yml).
+      mqtt_net:
 
 networks:                 
   macvlan01_dom_est:
+    external: true
+  mqtt_net:
     external: true

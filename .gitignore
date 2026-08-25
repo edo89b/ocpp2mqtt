@@ -1,5 +1,11 @@
 # Secrets / local configuration
-.env
+# .env* e non solo .env: le copie di backup del .env contengono le stesse
+# credenziali e questo repo e' pubblico.
+.env*
+
+# Copie di backup locali: non vanno pubblicate (il repo e' gia' la cronologia)
+*.bak
+*.bak-*
 
 # Python
 __pycache__/
