@@ -1,0 +1,17 @@
+# ocpp2mqtt
+
+> Lightweight OCPP 1.6 Central System (CSMS) that bridges EV chargers to MQTT. One Python process in one Docker container: chargers connect over WebSocket (ocpp1.6), everything they report is published as MQTT topics, and commands published on MQTT (start, stop, current limit, availability, configuration, reset) are sent to the charger as OCPP calls. Designed for a trusted home network: no charger authentication, every tag accepted. MIT licensed.
+
+## Docs
+
+- [AGENTS.md](AGENTS.md): conventions, commands, git workflow, environment variables, known technical debt
+- [README.md](README.md): overview, topics, commands, worked example, security notes
+- [Architecture](docs/ARCHITECTURE.md): components, threading model, connection lifecycle, failure behaviour, design decisions
+- [Setup](docs/SETUP.md): installation, networking, verification, troubleshooting, operational traps
+- [Interfaces](docs/API.md): WebSocket endpoint, OCPP 1.6 message census, MQTT topics, meter keys and commands
+
+## Optional
+
+- [.env.example](.env.example): settings template
+- [docker-compose.yml](docker-compose.yml): which variables reach the container, networks, log rotation
+- [LICENSE](LICENSE): MIT

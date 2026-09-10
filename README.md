@@ -119,7 +119,7 @@ namespace to your own `<charger_id>`.
 
 ```bash
 # Read which configuration keys the charger supports
-#   → response on ocpp2mqtt/my_wallbox/get_configuration/response
+#   → response on ocpp2mqtt/my_wallbox/cmd/get_configuration/response
 mosquitto_pub -t 'ocpp2mqtt/my_wallbox/cmd/get_configuration' -m '{}'
 
 # Choose which measurands are reported on each sample / aligned interval
