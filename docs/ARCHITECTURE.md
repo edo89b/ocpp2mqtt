@@ -101,7 +101,9 @@ together with `bridge/status`.
    measurand and phase, so consumers subscribe only to what they use.
 6. **Current limit as default profile.** `set_limit` sends a
    `TxDefaultProfile` (profile id 1, stack level 0, relative, amperes) that
-   replaces the previous one; connector 0 means the whole station.
+   replaces the previous one; connector 0 means the whole station. A limit of
+   0 A is passed through as a pause; `purpose="tx"` sends a `TxProfile`
+   (profile id 2, stack level 1) bound to the running transaction instead.
 7. **Expected chargers.** Ids listed in `EXPECTED_CHARGERS` are published as
    `Disconnected` on every MQTT connect, so consumers do not wait for a
    first boot. With the current compose file the variable does not reach

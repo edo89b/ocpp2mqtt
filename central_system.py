@@ -255,28 +255,53 @@ class MyChargePoint(cp):
         self.pub("cmd/stop/response", resp.status)
         logger.info("[%s] RemoteStop → %s", self.id, resp.status)
 
-    async def set_charging_limit(self, amps: float, connector_id: int = 0):
-        # Cap the charging current via a TxDefault charging profile. Clamp to a
-        # sane 6–32 A window (6 A is the IEC 61851 minimum). connector_id=0
-        # applies to the whole charge point.
-        amps = max(6.0, min(float(amps), 32.0))
-        resp = await self.call(call.SetChargingProfile(
-            connector_id=connector_id,
-            cs_charging_profiles={
-                "chargingProfileId":      1,
-                "stackLevel":             0,
-                "chargingProfilePurpose": ChargingProfilePurposeType.tx_default_profile,
-                "chargingProfileKind":    ChargingProfileKindType.relative,
-                "chargingSchedule": {
-                    "chargingRateUnit": ChargingRateUnitType.amps,
-                    "chargingSchedulePeriod": [
-                        {"startPeriod": 0, "limit": amps}
-                    ],
-                },
+    async def set_charging_limit(self, amps: float, connector_id: int = 0,
+                                 purpose: str = "tx_default"):
+        """Cap the charging current with a charging profile.
+
+        ``amps = 0`` pauses the charge: OCPP 1.6 allows a 0 A limit, and the charge point
+        suspends (``SuspendedEVSE``) while keeping the transaction open, so charging resumes
+        as soon as a limit of at least 6 A is sent again. Any other value is clamped to the
+        6–32 A window (6 A is the IEC 61851 minimum).
+
+        ``purpose`` selects the profile: ``tx_default`` (default) sets a ``TxDefaultProfile``
+        on ``connector_id`` (0 = the whole charge point), ``tx`` sets a ``TxProfile`` bound to
+        the running transaction, for chargers that apply the default profile only to the next
+        session. A ``TxProfile`` needs a connector of its own, so connector 0 becomes 1.
+        """
+        amps = 0.0 if float(amps) <= 0 else max(6.0, min(float(amps), 32.0))
+        profile = {
+            "chargingProfileId":      1,
+            "stackLevel":             0,
+            "chargingProfilePurpose": ChargingProfilePurposeType.tx_default_profile,
+            "chargingProfileKind":    ChargingProfileKindType.relative,
+            "chargingSchedule": {
+                "chargingRateUnit": ChargingRateUnitType.amps,
+                "chargingSchedulePeriod": [
+                    {"startPeriod": 0, "limit": amps}
+                ],
             },
+        }
+        if purpose == "tx":
+            if self._current_transaction_id is None:
+                self.pub("cmd/set_limit/response",
+                         {"amps": amps, "purpose": purpose, "status": "NoActiveTransaction"})
+                logger.warning("[%s] set_limit purpose=tx without a running transaction", self.id)
+                return
+            profile.update({
+                "chargingProfileId":      2,
+                "stackLevel":             1,
+                "chargingProfilePurpose": ChargingProfilePurposeType.tx_profile,
+                "transactionId":          self._current_transaction_id,
+            })
+            connector_id = connector_id or 1
+        resp = await self.call(call.SetChargingProfile(
+            connector_id=connector_id, cs_charging_profiles=profile,
         ))
-        self.pub("cmd/set_limit/response", {"amps": amps, "status": resp.status})
-        logger.info("[%s] SetChargingProfile %.1fA → %s", self.id, amps, resp.status)
+        self.pub("cmd/set_limit/response",
+                 {"amps": amps, "purpose": purpose, "status": resp.status})
+        logger.info("[%s] SetChargingProfile %.1fA (%s) → %s",
+                    self.id, amps, purpose, resp.status)
 
     async def get_configuration(self, keys: list[str] | None = None):
         # Read OCPP configuration keys (all of them, or a specific subset).
@@ -401,6 +426,7 @@ def on_mqtt_message(client, userdata, msg):
             await charger.set_charging_limit(
                 amps=float(payload.get("amps", 16)),
                 connector_id=int(payload.get("connector_id", 0)),
+                purpose=str(payload.get("purpose", "tx_default")),
             )
         elif command == "get_configuration":
             await charger.get_configuration(keys=payload.get("keys"))

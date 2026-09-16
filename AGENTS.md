@@ -96,7 +96,10 @@ Patterns that must stay:
 - On disconnect the handler deregisters the charger, unsubscribes its
   commands, zeroes instantaneous power and current, and publishes the
   disconnect state, reason and time.
-- `set_charging_limit()` clamps to 6–32 A (6 A is the IEC 61851 minimum).
+- `set_charging_limit()` clamps to 6–32 A (6 A is the IEC 61851 minimum), except
+  `amps = 0`, which pauses the charge with a 0 A limit and keeps the transaction
+  open. `purpose="tx"` swaps the `TxDefaultProfile` for a `TxProfile` bound to the
+  running transaction (profile id 2, stack level 1, connector 1).
 
 Anti-patterns (never acceptable):
 

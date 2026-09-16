@@ -96,7 +96,7 @@ Publish to `ocpp2mqtt/<id>/cmd/<command>`:
 |------------------------|----------------------------------------------------------------------------|
 | `start`                | `{"connector_id": 1, "tag": "FREE"}`                                       |
 | `stop`                 | `{}`                                                                       |
-| `set_limit`            | `{"amps": 16}` (clamped to 6–32 A)                                         |
+| `set_limit`            | `{"amps": 16}` (clamped to 6–32 A; `0` pauses the charge), optional `{"purpose": "tx"}` |
 | `unlock`               | `{"connector_id": 1}`                                                      |
 | `reset`                | `{"type": "Soft"}` or `{"type": "Hard"}`                                   |
 | `change_availability`  | `{"available": false, "connector_id": 0}` (false = block charging)         |

@@ -43,7 +43,7 @@ Sent only when an MQTT command arrives (see [Commands](#commands)).
 |---|---|---|---|---|
 | 1 | `start` | `RemoteStartTransaction` | `idTag`, `connectorId` | `Accepted`, `Rejected` |
 | 2 | `stop` | `RemoteStopTransaction` | the tracked transaction id | `Accepted`, `Rejected` |
-| 3 | `set_limit` | `SetChargingProfile` | profile id 1, stack level 0, `TxDefaultProfile`, `Relative`, unit `A`, one period from 0 s | `Accepted`, `Rejected`, `NotSupported` |
+| 3 | `set_limit` | `SetChargingProfile` | profile id 1, stack level 0, `TxDefaultProfile`, `Relative`, unit `A`, one period from 0 s (`purpose=tx`: profile id 2, stack level 1, `TxProfile` with the transaction id) | `Accepted`, `Rejected`, `NotSupported` |
 | 4 | `get_configuration` | `GetConfiguration` | key list, or none for all | (key/value map) |
 | 5 | `change_configuration` | `ChangeConfiguration` | `key`, `value` as a string | `Accepted`, `Rejected`, `RebootRequired`, `NotSupported` |
 | 6 | `trigger` | `TriggerMessage` | `requestedMessage`, `connectorId` | `Accepted`, `Rejected`, `NotImplemented` |
@@ -109,7 +109,7 @@ invalid JSON payload is treated as `{}`, so every field takes its default.
 |---|---|---|---|
 | 1 | `start` | `connector_id` (1), `tag` (`FREE`) | status |
 | 2 | `stop` | none | status, or `NoActiveTransaction` without calling the charger |
-| 3 | `set_limit` | `amps` (16, clamped to 6–32), `connector_id` (0) | JSON: `amps` (after clamping), `status` |
+| 3 | `set_limit` | `amps` (16, clamped to 6–32; `0` pauses), `connector_id` (0), `purpose` (`tx_default`, or `tx` for the running transaction) | JSON: `amps` (after clamping), `purpose`, `status`; `NoActiveTransaction` for `purpose=tx` without a transaction |
 | 4 | `get_configuration` | `keys` (all keys) | JSON: key to value |
 | 5 | `change_configuration` | `key`, `value` (both required) | JSON: `key`, `value`, `status` |
 | 6 | `trigger` | `message` (`StatusNotification`), `connector_id` (1) | JSON: `message`, `status` |
