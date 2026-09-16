@@ -75,7 +75,7 @@ together with `bridge/status`.
 
 | # | Situation | What happens | Recovery |
 |---|---|---|---|
-| 1 | Broker unreachable at startup | `connect()` raises, the process exits | Docker restart policy `always` |
+| 1 | Broker unreachable at startup | `connect()` raises, the process exits | Docker restart policy `unless-stopped` |
 | 2 | Broker connection lost | The broker publishes the retained LWT `offline`; paho reconnects with 1 to 30 s back-off | `on_mqtt_connect()` restores `online` and the command subscriptions |
 | 3 | Charger socket lost | Teardown as above | The charger reconnects on its own |
 | 4 | Charger does not answer a command within 30 s | `asyncio.TimeoutError` inside `dispatch()`, not logged | No `.../response` topic |

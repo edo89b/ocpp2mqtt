@@ -181,7 +181,7 @@ Known technical debt (documented, not fixed yet):
 - `central_system.py`: everything; the module docstring has the topic scheme
   and the threading model.
 - `docker-compose.yml`: which variables reach the container, networks,
-  restart policy `always`, log rotation.
+  restart policy `unless-stopped`, log rotation.
 - `.env.example`: settings template; `.env` holds the real values.
 - `Dockerfile`, `requirements.txt`: image; `.dockerignore` keeps `.env`, the
   compose file and the Markdown files out of the build context.
